@@ -110,6 +110,17 @@
     #msg.error { color: #c0392b; }
     #msg.success { color: #2e7d32; }
     .hp { position: absolute; left: -9999px; height: 0; width: 0; opacity: 0; }
+    .checkbox-group { display: flex; flex-direction: column; gap: 10px; }
+.check-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+  font-weight: 400;
+  margin: 0;
+  cursor: pointer;
+}
+.check-item input { width: 18px; height: 18px; margin: 0; }
   </style>
 </head>
 <body>
@@ -143,18 +154,16 @@
       </div>
 
       <div class="field">
-        <label for="product">Products I am interested in.</label>
-        <select id="product" name="product" multiple size="4">
-          <!-- TODO: replace with your real product list -->
-         <option value="Kaaju">Kaaju</option>
-          <option value="Kishmish">Kishmish</option>
-          <option value="Badaam">Badaam</option>
-          <option value="Khazoor">Khazoor</option>
-          <option value="Any Other">Any Other</option>
-          <option value="All of them">All of them</option>
-        </select>
-        <div class="hint">Hold Ctrl (Windows) or Cmd (Mac) to select more than one.</div>
-      </div>
+       <label>Products I am interested in.</label>
+  <div class="checkbox-group">
+    <label class="check-item"><input type="checkbox" name="product" value="Kaaju"> Kaaju</label>
+    <label class="check-item"><input type="checkbox" name="product" value="Kishmish"> Kishmish</label>
+    <label class="check-item"><input type="checkbox" name="product" value="Badaam"> Badaam</label>
+    <label class="check-item"><input type="checkbox" name="product" value="Khazoor"> Khazoor</label>
+    <label class="check-item"><input type="checkbox" name="product" value="Any Other"> Any Other</label>
+    <label class="check-item"><input type="checkbox" name="product" value="All of them"> All of them</label>
+  </div>
+   </div>
 
       <div class="field">
         <label>Please tick the box below to know our upcoming offers &amp; discounts</label>
@@ -173,85 +182,83 @@
   </main>
 
   <script>
-    // Paste the Web app URL from Google Apps Script here
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzIGLHQDzAlrQlU-MIb15ORwcarQbEnDsD713h7jYfuaPi7nDvD1mKgxCzwfDOimt-hqw/exec";
+  // Paste the Web app URL from Google Apps Script here
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzIGLHQDzAlrQlU-MIb15ORwcarQbEnDsD713h7jYfuaPi7nDvD1mKgxCzwfDOimt-hqw/exec";
 
-    const form = document.getElementById("customer-form");
-    const msg = document.getElementById("msg");
-    const btn = document.getElementById("submit-btn");
-    const mobileInput = document.getElementById("mobile");
-    const emailInput = document.getElementById("email");
+  const form = document.getElementById("customer-form");
+  const msg = document.getElementById("msg");
+  const btn = document.getElementById("submit-btn");
+  const mobileInput = document.getElementById("mobile");
+  const emailInput = document.getElementById("email");
 
-    // Mobile: keep digits only, as the customer types or pastes
-    mobileInput.addEventListener("input", function () {
-      this.value = this.value.replace(/\D/g, "").slice(0, 15);
-    });
+  // Mobile: digits only
+  mobileInput.addEventListener("input", function () {
+    this.value = this.value.replace(/\D/g, "").slice(0, 15);
+  });
 
-    // Email: remove spaces as the customer types or pastes
-    emailInput.addEventListener("input", function () {
-      this.value = this.value.replace(/\s/g, "");
-    });
+  // Email: remove spaces
+  emailInput.addEventListener("input", function () {
+    this.value = this.value.replace(/\s/g, "");
+  });
 
-    form.addEventListener("submit", function (e) {
-      e.preventDefault();
-      msg.className = "";
-      msg.textContent = "";
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    msg.className = "";
+    msg.textContent = "";
 
-      // Bot check
-      if (form.website.value) return;
+    // Bot check
+    if (form.website.value) return;
 
-      const name = form.name.value.trim();
-      const mobile = mobileInput.value;
-      const email = emailInput.value.trim();
+    const name = form.name.value.trim();
+    const mobile = mobileInput.value;
+    const email = emailInput.value.trim();
 
-      if (!name) {
-        showError("Please enter your name.");
-        return;
-      }
-      if (!/^\d{10,15}$/.test(mobile)) {
-        showError("Please enter a valid mobile number (10 to 15 digits).");
-        return;
-      }
-      // Email is optional, but if entered it must be a valid address
-      if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
-        showError("Please enter a valid email address, or leave it blank.");
-        return;
-      }
-
-      // Collect all selected products as a list
-      const products = Array.from(form.product.selectedOptions).map(function (o) { return o.value; });
-
-      const data = new FormData();
-      data.append("name", name);
-      data.append("mobile", mobile);
-      data.append("email", email);
-      data.append("products", products.join(", "));
-      data.append("offers", form.offers.checked ? "Yes" : "No");
-
-      btn.disabled = true;
-      btn.textContent = "Submitting...";
-
-      // mode "no-cors" is required for Apps Script; the response can't be read,
-      // so we show success once the request is sent.
-      fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: data })
-        .then(function () {
-          msg.className = "success";
-          msg.textContent = "Thank you for connecting with Mona Creation! We'll keep you updated.";
-          form.reset();
-        })
-        .catch(function () {
-          showError("Something went wrong. Please try again.");
-        })
-        .finally(function () {
-          btn.disabled = false;
-          btn.innerHTML = "Submit &rarr;";
-        });
-    });
-
-    function showError(text) {
-      msg.className = "error";
-      msg.textContent = text;
+    if (!name) {
+      showError("Please enter your name.");
+      return;
     }
-  </script>
+    if (!/^\d{10,15}$/.test(mobile)) {
+      showError("Please enter a valid mobile number (10 to 15 digits).");
+      return;
+    }
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
+      showError("Please enter a valid email address, or leave it blank.");
+      return;
+    }
+
+    // All ticked products
+    const products = Array.from(form.querySelectorAll('input[name="product"]:checked'))
+      .map(function (c) { return c.value; });
+
+    const data = new FormData();
+    data.append("name", name);
+    data.append("mobile", mobile);
+    data.append("email", email);
+    data.append("products", products.join(", "));
+    data.append("offers", form.offers.checked ? "Yes" : "No");
+
+    btn.disabled = true;
+    btn.textContent = "Submitting...";
+
+    fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: data })
+      .then(function () {
+        msg.className = "success";
+        msg.textContent = "Thank you for connecting with Mona Creation! We'll keep you updated.";
+        form.reset();
+      })
+      .catch(function () {
+        showError("Something went wrong. Please try again.");
+      })
+      .finally(function () {
+        btn.disabled = false;
+        btn.innerHTML = "Submit &rarr;";
+      });
+  });
+
+  function showError(text) {
+    msg.className = "error";
+    msg.textContent = text;
+  }
+</script>
 </body>
 </html>
