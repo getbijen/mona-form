@@ -225,7 +225,7 @@
       data.append("name", name);
       data.append("mobile", mobile);
       data.append("email", email);
-      products.forEach(function (p) { data.append("product", p); });
+      data.append("products", products.join(", "));
       data.append("offers", form.offers.checked ? "Yes" : "No");
 
       btn.disabled = true;
